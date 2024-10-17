@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alignment Scores</title>
+</head>
+<body>
+    <h1>Enter Alignment Scores and Method</h1>
+    <form method="POST">
+        {% csrf_token %}
+
+        <div>
+            <label for="id_match_score">Match Score:</label>
+            {{ form.match_score }}
+            {% for error in form.match_score.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div>
+            <label for="id_mismatch_score">Mismatch:</label>
+            {{ form.mismatch_score }}
+            {% for error in form.mismatch_score.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div>
+            <label for="id_gap_score">Gap Score:</label>
+            {{ form.gap_score }}
+            {% for error in form.gap_score.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div>
+            <label for="id_alignment_method">Alignment Method:</label>
+            {{ alignment_method_form.alignment_method }}
+            {% for error in alignment_method_form.alignment_method.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <button type="submit">Submit Score Settings</button>
+    </form>
+</body>
+</html>

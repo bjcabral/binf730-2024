@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alignment Scores</title>
+</head>
+<body>
+    <h1>Enter Alignment Scores</h1>
+    <form method="POST" action="{% url 'align_sequences' %}">
+        {% csrf_token %}
+
+        <div>
+            {{ form.as_p }}
+        </div>
+
+        <button type="submit">Submit Alignment Scores</button>
+    </form>
+</body>
+</html>
