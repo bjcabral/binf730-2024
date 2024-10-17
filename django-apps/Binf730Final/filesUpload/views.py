@@ -64,7 +64,8 @@ def align_sequences(request):
     match_score = request.session.get('match_score')
     mismatch_score = request.session.get('mismatch_score')
     gap_score = request.session.get('gap_score')
-    alignment_method = request.session.get('alignment_method')
+    # alignment_method = request.session.get('alignment_method')
+    alignment_method = 'global'
 
     if not file1_name or not file2_name:
         return HttpResponse("Files not found. Please upload again.")
