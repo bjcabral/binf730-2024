@@ -1,6 +1,6 @@
 # URL configuration for Binf730Final project.
 from django.urls import path
-from . import views
+from filesUpload import views
 
 urlpatterns = [
     path('upload/', views.upload_sequence_files, name='upload_sequence_files'),
