@@ -1,0 +1,10 @@
+<form method="post">
+  {% csrf_token %}
+  <h3>Alignment Scores</h3>
+  {{ score_form.as_p }}
+
+  <h3>Alignment Method</h3>
+  {{ method_form.as_p }}
+
+  <button type="submit">Submit</button>
+</form>
