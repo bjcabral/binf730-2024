@@ -7,14 +7,18 @@ class AlignmentScoreForm(forms.Form):
     mismatch_score = forms.IntegerField(label='Mismatch: ')
     gap_score = forms.IntegerField(label='Gap Score: ')
 
-class SequenceFileForm(forms.ModelForm):
-    class Meta:
-        model = SequenceFile
-        fields = ('file1', 'file2')
+    class SequenceFileForm(forms.Form):
+        SEQUENCE_INPUT_CHOICES = [
+            ('manual', 'Enter sequences manually'),
+            ('fasta', 'Upload FASTA files'),
+        ]
+        sequence_input_type = forms.ChoiceField(choices=SEQUENCE_INPUT_CHOICES, widget=forms.RadioSelect)
+        number_of_sequences = forms.IntegerField(min_value=1, required=False)
+        number_of_fasta_files = forms.IntegerField(min_value=1, required=False)
 
 class AlignmentMethodForm(forms.Form):
     ALIGNMENT_CHOICES = [
-        ('manual', 'Manual'),
-        ('clustalw', 'ClustalW'),
+        ('global', 'Global'),
+        ('local', 'Local'),
     ]
     alignment_method = forms.ChoiceField(choices=ALIGNMENT_CHOICES, label="Select Alignment Method")

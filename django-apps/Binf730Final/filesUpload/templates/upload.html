@@ -1,5 +1,69 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ form.non_field_errors }}
+
+    <div>
+        {{ form.sequence_input_type.label_tag }}
+        {{ form.sequence_input_type }}
+    </div>
+
+    <div id="manual_input" style="display: none;">
+        <label for="id_number_of_sequences">Number of sequences to enter manually:</label>
+        {{ form.number_of_sequences }}
+        <div id="manual_sequence_inputs"></div>
+    </div>
+
+    <div id="fasta_input" style="display: none;">
+        <label for="id_number_of_fasta_files">Number of FASTA files to enter:</label>
+        {{ form.number_of_fasta_files }}
+        <div id="fasta_file_inputs"></div>
+    </div>
+
     <button type="submit">Upload</button>
 </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTypeRadios = document.querySelectorAll('input[name="sequence_input_type"]');
+        const manualInputDiv = document.getElementById('manual_input');
+        const fastaInputDiv = document.getElementById('fasta_input');
+        const manualSequenceInputs = document.getElementById('manual_sequence_inputs');
+        const fastaFileInputs = document.getElementById('fasta_file_inputs');
+
+        inputTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'manual') {
+                    manualInputDiv.style.display = 'block';
+                    fastaInputDiv.style.display = 'none';
+                } else {
+                    manualInputDiv.style.display = 'none';
+                    fastaInputDiv.style.display = 'block';
+                }
+            });
+        });
+
+        document.getElementById('id_number_of_sequences').addEventListener('change', function() {
+            manualSequenceInputs.innerHTML = '';
+            for (let i = 1; i <= this.value; i++) {
+                manualSequenceInputs.innerHTML += `
+                    <div>
+                        <label for="sequence_${i}">Enter Sequence ${i}:</label>
+                        <input type="text" name="sequence_${i}" id="sequence_${i}" required>
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById('id_number_of_fasta_files').addEventListener('change', function() {
+            fastaFileInputs.innerHTML = '';
+            for (let i = 1; i <= this.value; i++) {
+                fastaFileInputs.innerHTML += `
+                    <div>
+                        <label for="fasta_file_${i}">Select FASTA file ${i}:</label>
+                        <input type="file" name="fasta_file_${i}" id="fasta_file_${i}" required>
+                    </div>
+                `;
+            }
+        });
+    });
+</script>

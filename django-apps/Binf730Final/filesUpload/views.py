@@ -6,28 +6,34 @@ from Bio import SeqIO
 from Bio import Align
 from .forms import SequenceFileForm, AlignmentScoreForm, AlignmentMethodForm
 
-
 def upload_sequence_files(request):
     if request.method == 'POST':
         form = SequenceFileForm(request.POST, request.FILES)
         if form.is_valid():
-            try:
-                file1 = request.FILES['file1']
-                file2 = request.FILES['file2']
-                fs = FileSystemStorage()
-                filename1 = fs.save(file1.name, file1)
-                filename2 = fs.save(file2.name, file2)
-                SeqIO.parse(fs.path(filename1), "fasta")
-                SeqIO.parse(fs.path(filename2), "fasta")
-                request.session['file1_name'] = filename1
-                request.session['file2_name'] = filename2
-                return redirect('method_and_score_scheme')
-            except Exception as e:
-                return HttpResponse(f"Error: {e}")
+            sequence_input_type = request.POST.get('sequence_input_type')
+            sequences = []
+
+            if sequence_input_type == 'manual':
+                number_of_sequences = int(request.POST.get('number_of_sequences'))
+                for i in range(number_of_sequences):
+                    sequence = request.POST.get(f'sequence_{i + 1}')
+                    sequences.append(sequence)
+
+            elif sequence_input_type == 'fasta':
+                number_of_fasta_files = int(request.POST.get('number_of_fasta_files'))
+                for i in range(number_of_fasta_files):
+                    fasta_file = request.FILES.get(f'fasta_file_{i + 1}')
+                    fs = FileSystemStorage()
+                    filename = fs.save(fasta_file.name, fasta_file)
+                    sequences.append(SeqIO.parse(fs.path(filename), "fasta"))
+
+            request.session['sequences'] = sequences
+            return redirect('method_and_score_scheme')
+        else:
+            return HttpResponse('Form is not valid.')
     else:
         form = SequenceFileForm()
     return render(request, 'upload.html', {'form': form})
-
 
 def method_and_score_scheme(request):
     file1_name = request.session.get('file1_name')
