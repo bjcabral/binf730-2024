@@ -36,11 +36,10 @@ def upload_sequence_files(request):
     return render(request, 'upload.html', {'form': form})
 
 def method_and_score_scheme(request):
-    file1_name = request.session.get('file1_name')
-    file2_name = request.session.get('file2_name')
+    sequences = request.session.get('sequences')
 
-    if not file1_name or not file2_name:
-        return HttpResponse("Files not found. Please upload again.")
+    if not sequences:
+        return HttpResponse("Sequences not found. Please upload again.")
 
     if request.method == 'POST':
         alignment_score_form = AlignmentScoreForm(request.POST)
@@ -60,25 +59,19 @@ def method_and_score_scheme(request):
     else:
         alignment_score_form = AlignmentScoreForm()
         alignment_method_form = AlignmentMethodForm()
+
     return render(request, 'method_and_score_scheme.html',
                   {'score_form': alignment_score_form, 'method_form': alignment_method_form})
 
-
 def align_sequences(request):
-    file1_name = request.session.get('file1_name')
-    file2_name = request.session.get('file2_name')
+    sequences = request.session.get('sequences')
     match_score = request.session.get('match_score')
     mismatch_score = request.session.get('mismatch_score')
     gap_score = request.session.get('gap_score')
-    # alignment_method = request.session.get('alignment_method')
-    alignment_method = 'global'
+    alignment_method = request.session.get('alignment_method')
 
-    if not file1_name or not file2_name:
-        return HttpResponse("Files not found. Please upload again.")
-
-    fs = FileSystemStorage()
-    seq1 = SeqIO.read(fs.path(file1_name), 'fasta')
-    seq2 = SeqIO.read(fs.path(file2_name), 'fasta')
+    if not sequences:
+        return HttpResponse("Sequences not found. Please upload again.")
 
     try:
         aligner = Align.PairwiseAligner()
@@ -86,15 +79,24 @@ def align_sequences(request):
         aligner.mismatch_score = mismatch_score
         aligner.query_gap_score = gap_score
         aligner.target_gap_score = gap_score
-        aligner.mode = alignment_method  # Use the alignment method from the session
-        # Perform the alignment
-        alignments = aligner.align(seq1.seq, seq2.seq)
+        aligner.mode = alignment_method
 
-        # Get the best alignment (first one in list)
-        best_alignment = alignments[0]
+        aligned_seq_html = "<h2>Pairwise Alignments:</h2>"
 
-        # Prepare response with aligned sequences formatted as HTML
-        aligned_seq_html = f"<pre>{best_alignment}</pre>"
+        for i in range(len(sequences)):
+            for j in range(i + 1, len(sequences)):
+                seq1 = sequences[i]
+                seq2 = sequences[j]
+
+                # Perform the alignment
+                alignments = aligner.align(seq1, seq2)
+
+                # Get the best alignment (first one in list)
+                best_alignment = alignments[0]
+
+                # Add the alignment to the HTML response
+                aligned_seq_html += f"<h3>Alignment between Sequence {i+1} and Sequence {j+1}:</h3>"
+                aligned_seq_html += f"<pre>{best_alignment}</pre>"
 
         return HttpResponse(aligned_seq_html)
 
