@@ -95,8 +95,9 @@ def method_and_score_scheme(request):
 # These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
 # sequence file for later use with the cal_distance() function.
 def align_sequences(request):
-    aligned_file_name = request.session.get('aligned_file_name')
+    file_to_align = request.session.get('fasta_file')
     sequences = request.session.get('sequences')
+    print(f"THESE ARE THE SEQUENCES FROM THE SESSION {sequences}")
     match_score = request.session.get('match_score')
     mismatch_score = request.session.get('mismatch_score')
     gap_score = request.session.get('gap_score')
