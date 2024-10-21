@@ -83,7 +83,8 @@ def method_and_score_scheme(request):
 
 # These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
 # sequence file for later use with the cal_distance() function.
-def align_sequences(request, aligned_file_name):
+def align_sequences(request):
+    aligned_file_name = '/home/ubuntu/binf-730/media/aligned.aln'
     sequences = request.session.get('sequences')
     match_score = request.session.get('match_score')
     mismatch_score = request.session.get('mismatch_score')
