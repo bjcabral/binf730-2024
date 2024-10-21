@@ -63,6 +63,12 @@ def method_and_score_scheme(request):
     return render(request, 'method_and_score_scheme.html',
                   {'score_form': alignment_score_form, 'method_form': alignment_method_form})
 
+from Bio import AlignIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio.Align import MultipleSeqAlignment
+import os
+
 def align_sequences(request):
     sequences = request.session.get('sequences')
     match_score = request.session.get('match_score')
@@ -82,6 +88,7 @@ def align_sequences(request):
         aligner.mode = alignment_method
 
         aligned_seq_html = "<h2>Pairwise Alignments:</h2>"
+        all_alignments = []
 
         for i in range(len(sequences)):
             for j in range(i + 1, len(sequences)):
@@ -97,6 +104,31 @@ def align_sequences(request):
                 # Add the alignment to the HTML response
                 aligned_seq_html += f"<h3>Alignment between Sequence {i+1} and Sequence {j+1}:</h3>"
                 aligned_seq_html += f"<pre>{best_alignment}</pre>"
+
+                # Store the alignment for writing to file
+                all_alignments.append((f"Seq{i+1}", str(best_alignment[0])))
+                all_alignments.append((f"Seq{j+1}", str(best_alignment[1])))
+
+        # Create a MultipleSeqAlignment object
+        msa = MultipleSeqAlignment([
+            SeqRecord(Seq(seq), id=name) for name, seq in all_alignments
+        ])
+
+        # Specify the directory and filename
+        directory = '/home/ubuntu/binf-730/django-apps/Binf730Final/media'
+        output_file = f'{directory}/aligned.aln'
+
+        # Ensure the directory exists
+        os.makedirs(directory, exist_ok=True)
+
+        # Write alignment to Clustal format
+        AlignIO.write(msa, output_file, 'clustal')
+
+        # Check if file was created and add to the response
+        if os.path.exists(output_file):
+            aligned_seq_html += f"<p>Alignment file has been saved to: {output_file}</p>"
+        else:
+            aligned_seq_html += "<p>Failed to save alignment file.</p>"
 
         return HttpResponse(aligned_seq_html)
 
