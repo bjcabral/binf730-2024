@@ -22,3 +22,20 @@ class AlignmentMethodForm(forms.Form):
         ('local', 'Local'),
     ]
     alignment_method = forms.ChoiceField(choices=ALIGNMENT_CHOICES, label="Select Alignment Method")
+
+class DistanceMatrixForm(forms.Form):
+    DISTANCE_CHOICES = [
+        ('identity', 'Identity'),
+        ('blastn', 'BLAST Nucleic Acid'),
+        ('trans', 'Transition/Transversion'),
+        ('blosum62', 'BLOSUM62'),
+        ('pam250', 'PAM250'),
+    ]
+    distance_method = forms.ChoiceField(choices=DISTANCE_CHOICES)
+
+class TreeConstructionForm(forms.Form):
+    TREE_CHOICES = [
+        ('upgma', 'UPGMA'),
+        ('nj', 'Neighbor-Joining'),
+    ]
+    tree_method = forms.ChoiceField(choices=TREE_CHOICES)

@@ -1,10 +1,27 @@
 # View file for the upload form
+import os
+from Bio.Align import MultipleSeqAlignment
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
-from Bio import SeqIO
+from Bio import SeqIO, AlignIO, Phylo
 from Bio import Align
-from .forms import SequenceFileForm, AlignmentScoreForm, AlignmentMethodForm
+from .forms import SequenceFileForm, AlignmentScoreForm, AlignmentMethodForm, DistanceMatrixForm, TreeConstructionForm
+from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor
+from io import StringIO
+
+
+aligned_file = "/home/ubuntu/binf-730/django-apps/Binf730Final/media/aligned.aln"
+
+# Specify the directory and filename
+output_directory = '/home/ubuntu/binf-730/django-apps/Binf730Final/media'
+aligned_file_name = f'{output_directory}/aligned.aln'
+# unction use to get the input data (sequences) from the users, either manual sequences, or fasta formatted files
+# the function prompts the user for how they want to input the data. Manual means they will enter short sequences
+# manually, while fasta means they will input the path to a faste formatted sequence file. First, the user will
+# indicate how many sequences they will enter and the code will iterate accordingly.
 
 def upload_sequence_files(request):
     if request.method == 'POST':
@@ -35,6 +52,7 @@ def upload_sequence_files(request):
         form = SequenceFileForm()
     return render(request, 'upload.html', {'form': form})
 
+# This function prompts the user for the the alignment method (global or local) and the score matrix.
 def method_and_score_scheme(request):
     sequences = request.session.get('sequences')
 
@@ -63,13 +81,9 @@ def method_and_score_scheme(request):
     return render(request, 'method_and_score_scheme.html',
                   {'score_form': alignment_score_form, 'method_form': alignment_method_form})
 
-from Bio import AlignIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
-import os
-
-def align_sequences(request):
+# These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
+# sequence file for later use with the cal_distance() function.
+def align_sequences(request, aligned_file_name):
     sequences = request.session.get('sequences')
     match_score = request.session.get('match_score')
     mismatch_score = request.session.get('mismatch_score')
@@ -114,23 +128,78 @@ def align_sequences(request):
             SeqRecord(Seq(seq), id=name) for name, seq in all_alignments
         ])
 
-        # Specify the directory and filename
-        directory = '/home/ubuntu/binf-730/django-apps/Binf730Final/media'
-        output_file = f'{directory}/aligned.aln'
-
-        # Ensure the directory exists
-        os.makedirs(directory, exist_ok=True)
-
         # Write alignment to Clustal format
-        AlignIO.write(msa, output_file, 'clustal')
+        AlignIO.write(msa, aligned_file_name, 'clustal')
 
         # Check if file was created and add to the response
-        if os.path.exists(output_file):
-            aligned_seq_html += f"<p>Alignment file has been saved to: {output_file}</p>"
+        if os.path.exists(aligned_file_name):
+            aligned_seq_html += f"<p>Alignment file has been saved to: {aligned_file_name}</p>"
         else:
             aligned_seq_html += "<p>Failed to save alignment file.</p>"
 
-        return HttpResponse(aligned_seq_html)
+        return redirect('calculate_distance')
 
     except Exception as e:
         return HttpResponse(f"Error occurred during alignment: {e}")
+
+# Function to calculate the distance matrix using the user selected method. BLOSUM250, identity, etc.
+# this function collects the input from the user and uses read_aligned() and cal_dist() to read
+# the aligned files in clustalo format and calculate the distance matrix.
+def calculate_distance(request):
+    if request.method == 'POST':
+        form = DistanceMatrixForm(request.POST)
+        if form.is_valid():
+            distance_method = form.cleaned_data['distance_method']
+            aligned_seqs = read_aligned(aligned_file_name)
+            distance_matrix = cal_dist(aligned_seqs, distance_method)
+            request.session['distance_matrix'] = distance_matrix.tolist()  # Convert to list for JSON serialization
+            return redirect('construct_tree')
+    else:
+        form = DistanceMatrixForm()
+    return render(request, 'calculate_distance.html', {'form': form})
+
+# Function to construct the tree from the distance matrix using the algorithm selected by the user
+# such as Neighbor Joining (nj) or UPGMA.
+def construct_tree(request):
+    if request.method == 'POST':
+        form = TreeConstructionForm(request.POST)
+        if form.is_valid():
+            tree_method = form.cleaned_data['tree_method']
+            distance_matrix = request.session.get('distance_matrix')
+            if not distance_matrix:
+                return HttpResponse("Distance matrix not found. Please calculate distances first.")
+            tree = construct_tree_from_matrix(distance_matrix, tree_method)
+            tree_image = draw_tree(tree)
+            return render(request, 'display_tree.html', {'tree_image': tree_image})
+    else:
+        form = TreeConstructionForm()
+    return render(request, 'construct_tree.html', {'form': form})
+
+# I use this function to read the aligned files from disk after it is saved by the align_sequences() function
+def read_aligned(aligned_seqs_file):
+    return AlignIO.read(aligned_seqs_file, "clustal")
+
+# Function to calculate the distance matrix based on the method
+def cal_dist(aligned_seqs, method):
+    calculator = DistanceCalculator(method)
+    return calculator.get_distance(aligned_seqs)
+
+# Function to construct the phylogenetic tree, given the distance matrix and the method: upgma or nj.
+def construct_tree_from_matrix(distance_matrix, method):
+    constructor = DistanceTreeConstructor()
+    if method == 'upgma':
+        return constructor.upgma(distance_matrix)
+    elif method == 'nj':
+        return constructor.nj(distance_matrix)
+
+# Finally, we draw a nice phylogenetic tree
+def draw_tree(tree):
+    tree_io = StringIO()
+    Phylo.draw(tree, do_show=False, write_to=tree_io, format='svg')
+    tree_image = tree_io.getvalue()
+    return tree_image
+
+
+
+
+
