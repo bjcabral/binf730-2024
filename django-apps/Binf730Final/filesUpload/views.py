@@ -15,7 +15,7 @@ from io import StringIO
 
 # Specify the directory and filename
 output_directory = '/home/ubuntu/binf-730/django-apps/Binf730Final/media'
-aligned_file = "{output_directory}/aligned.aln"
+aligned_file = f"{output_directory}/aligned.aln"
 # Save the files in fasta format in one single file when enter manually or when fasta files are uploaded
 output_fasta_file = "{output_directory}/uploaded_sequences.fasta"
 os.makedirs(os.path.dirname(output_fasta_file), exist_ok=True)
