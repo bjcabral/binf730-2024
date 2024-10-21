@@ -13,38 +13,49 @@ from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstruct
 from io import StringIO
 
 
-aligned_file = "/home/ubuntu/binf-730/django-apps/Binf730Final/media/aligned.aln"
-
 # Specify the directory and filename
 output_directory = '/home/ubuntu/binf-730/django-apps/Binf730Final/media'
-aligned_file_name = f'{output_directory}/aligned.aln'
-# unction use to get the input data (sequences) from the users, either manual sequences, or fasta formatted files
+aligned_file = "{output_directory}/aligned.aln"
+# Save the files in fasta format in one single file when enter manually or when fasta files are uploaded
+output_fasta_file = '{output_directory}/uploaded_sequences.fasta'
+os.makedirs(os.path.dirname(output_fasta_file), exist_ok=True)
+
+# Append the entered sequences, manual or fasta file into one single file for the aligner.
+def append_to_fasta_file(sequence_id, sequence):
+    with open(output_fasta_file, 'a') as fasta_file:
+        fasta_file.write(f'>{sequence_id}\n{sequence}\n')
+
+# function use to get the input data (sequences) from the users, either manual sequences, or fasta formatted files
 # the function prompts the user for how they want to input the data. Manual means they will enter short sequences
 # manually, while fasta means they will input the path to a faste formatted sequence file. First, the user will
 # indicate how many sequences they will enter and the code will iterate accordingly.
-
 def upload_sequence_files(request):
     if request.method == 'POST':
         form = SequenceFileForm(request.POST, request.FILES)
         if form.is_valid():
             sequence_input_type = request.POST.get('sequence_input_type')
-            sequences = []
+
+            # Clear the existing file content
+            open(output_fasta_file, 'w').close()
 
             if sequence_input_type == 'manual':
                 number_of_sequences = int(request.POST.get('number_of_sequences'))
                 for i in range(number_of_sequences):
+                    sequence_id = request.POST.get(f'sequence_id_{i + 1}')
                     sequence = request.POST.get(f'sequence_{i + 1}')
-                    sequences.append(sequence)
+                    append_to_fasta_file(sequence_id, sequence)
 
             elif sequence_input_type == 'fasta':
                 number_of_fasta_files = int(request.POST.get('number_of_fasta_files'))
+                fs = FileSystemStorage()
                 for i in range(number_of_fasta_files):
                     fasta_file = request.FILES.get(f'fasta_file_{i + 1}')
-                    fs = FileSystemStorage()
                     filename = fs.save(fasta_file.name, fasta_file)
-                    sequences.append(SeqIO.parse(fs.path(filename), "fasta"))
+                    for record in SeqIO.parse(fs.path(filename), "fasta"):
+                        append_to_fasta_file(record.id, str(record.seq))
+                    fs.delete(filename)  # Delete the temporary file
 
-            request.session['sequences'] = sequences
+            request.session['fasta_file'] = output_fasta_file
             return redirect('method_and_score_scheme')
         else:
             return HttpResponse('Form is not valid.')
