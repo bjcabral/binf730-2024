@@ -64,33 +64,42 @@ def upload_sequence_files(request):
     return render(request, 'upload.html', {'form': form})
 
 # This function prompts the user for the the alignment method (global or local) and the score matrix.
-def method_and_score_scheme(request):
-    sequences = request.session.get('sequences')
+from .forms import AlignmentMethodForm, SubstitutionMatrixForm
 
-    if not sequences:
+
+def method_and_score_scheme(request):
+    fasta_file = request.session.get('fasta_file')
+
+    if not fasta_file:
         return HttpResponse("Sequences not found. Please upload again.")
 
     if request.method == 'POST':
-        alignment_score_form = AlignmentScoreForm(request.POST)
         alignment_method_form = AlignmentMethodForm(request.POST)
-        if alignment_score_form.is_valid() and alignment_method_form.is_valid():
-            match_score = alignment_score_form.cleaned_data['match_score']
-            mismatch_score = alignment_score_form.cleaned_data['mismatch_score']
-            gap_score = alignment_score_form.cleaned_data['gap_score']
-            alignment_method = alignment_method_form.cleaned_data['alignment_method']
+        substitution_matrix_form = SubstitutionMatrixForm(request.POST)
 
-            request.session['match_score'] = match_score
-            request.session['mismatch_score'] = mismatch_score
-            request.session['gap_score'] = gap_score
+        if alignment_method_form.is_valid() and substitution_matrix_form.is_valid():
+            alignment_method = alignment_method_form.cleaned_data['alignment_method']
+            substitution_matrix = substitution_matrix_form.cleaned_data['substitution_matrix']
+
             request.session['alignment_method'] = alignment_method
+            request.session['substitution_matrix'] = substitution_matrix
+
+            if substitution_matrix == 'manual':
+                match_score = substitution_matrix_form.cleaned_data['match_score']
+                mismatch_score = substitution_matrix_form.cleaned_data['mismatch_score']
+                gap_score = substitution_matrix_form.cleaned_data['gap_score']
+
+                request.session['match_score'] = match_score
+                request.session['mismatch_score'] = mismatch_score
+                request.session['gap_score'] = gap_score
 
             return redirect('align_sequences')
     else:
-        alignment_score_form = AlignmentScoreForm()
         alignment_method_form = AlignmentMethodForm()
+        substitution_matrix_form = SubstitutionMatrixForm()
 
     return render(request, 'method_and_score_scheme.html',
-                  {'score_form': alignment_score_form, 'method_form': alignment_method_form})
+                  {'method_form': alignment_method_form, 'matrix_form': substitution_matrix_form})
 
 # These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
 # sequence file for later use with the cal_distance() function.

@@ -7,8 +7,6 @@ class AlignmentScoreForm(forms.Form):
     mismatch_score = forms.IntegerField(label='Mismatch: ')
     gap_score = forms.IntegerField(label='Gap Score: ')
 
-from django import forms
-
 class SequenceFileForm(forms.Form):
     SEQUENCE_INPUT_CHOICES = [
         ('manual', 'Manual Input'),
@@ -41,10 +39,10 @@ class SequenceFileForm(forms.Form):
 
 class AlignmentMethodForm(forms.Form):
     ALIGNMENT_CHOICES = [
-        ('global', 'Global'),
-        ('local', 'Local'),
+        ('global', 'Global Alignment'),
+        ('local', 'Local Alignment'),
     ]
-    alignment_method = forms.ChoiceField(choices=ALIGNMENT_CHOICES, label="Select Alignment Method")
+    alignment_method = forms.ChoiceField(choices=ALIGNMENT_CHOICES)
 
 class DistanceMatrixForm(forms.Form):
     DISTANCE_CHOICES = [
@@ -62,3 +60,26 @@ class TreeConstructionForm(forms.Form):
         ('nj', 'Neighbor-Joining'),
     ]
     tree_method = forms.ChoiceField(choices=TREE_CHOICES)
+
+
+class SubstitutionMatrixForm(forms.Form):
+    MATRIX_CHOICES = [
+        ('manual', 'Manual Entry'),
+        ('BLOSUM62', 'BLOSUM62'),
+        ('BLOSUM50', 'BLOSUM50'),
+        ('BLOSUM80', 'BLOSUM80'),
+        ('PAM250', 'PAM250'),
+        ('PAM100', 'PAM100'),
+    ]
+    substitution_matrix = forms.ChoiceField(choices=MATRIX_CHOICES)
+    match_score = forms.IntegerField(required=False)
+    mismatch_score = forms.IntegerField(required=False)
+    gap_score = forms.IntegerField(required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        substitution_matrix = cleaned_data.get('substitution_matrix')
+        if substitution_matrix == 'manual':
+            if not all([cleaned_data.get('match_score'), cleaned_data.get('mismatch_score'), cleaned_data.get('gap_score')]):
+                raise forms.ValidationError("Please provide all scores for manual entry.")
+        return cleaned_data
