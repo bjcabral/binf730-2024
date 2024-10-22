@@ -12,7 +12,7 @@ from Bio import SeqIO, AlignIO, Phylo
 #from Bio import Align
 from .forms import SequenceFileForm, AlignmentScoreForm, AlignmentMethodForm, DistanceMatrixForm, TreeConstructionForm, \
     SubstitutionMatrixForm
-from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor
+from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor, DistanceMatrix
 #from io import
 from Bio.Align.Applications import ClustalOmegaCommandline
 from . import config
@@ -175,9 +175,20 @@ def calculate_distance(request):
         if form.is_valid():
             distance_method = form.cleaned_data['distance_method']
             aligned_file_name = request.session.get('aligned_file_name')
+
+            if not aligned_file_name:
+                return HttpResponse("Aligned sequences not found. Please align sequences first.")
+
             aligned_seqs = read_aligned(aligned_file_name)
             distance_matrix = cal_dist(aligned_seqs, distance_method)
-            request.session['distance_matrix'] = distance_matrix.tolist()  # Convert to list for JSON serialization
+
+            # Convert DistanceMatrix to a list of lists
+            matrix_list = [list(row) for row in distance_matrix.matrix]
+
+            # Store both the matrix and the names in the session
+            request.session['distance_matrix'] = matrix_list
+            request.session['matrix_names'] = distance_matrix.names
+
             return redirect('construct_tree')
     else:
         form = DistanceMatrixForm()
@@ -190,24 +201,25 @@ def construct_tree(request):
         form = TreeConstructionForm(request.POST)
         if form.is_valid():
             tree_method = form.cleaned_data['tree_method']
-            distance_matrix = request.session.get('distance_matrix')
-            if not distance_matrix:
+            matrix_list = request.session.get('distance_matrix')
+            matrix_names = request.session.get('matrix_names')
+
+            if not matrix_list or not matrix_names:
                 return HttpResponse("Distance matrix not found. Please calculate distances first.")
+
+            # Reconstruct the DistanceMatrix object that was previously deconstructed in align_sequence() into a
+            # list of lists to be able to put it in the session as distance_matrix.
+            distance_matrix = DistanceMatrix(names=matrix_names)
+            for i, row in enumerate(matrix_list):
+                for j, value in enumerate(row[:i]):
+                    distance_matrix[i, j] = value
+
             tree = construct_tree_from_matrix(distance_matrix, tree_method)
             tree_image = draw_tree(tree)
             return render(request, 'display_tree.html', {'tree_image': tree_image})
     else:
         form = TreeConstructionForm()
     return render(request, 'construct_tree.html', {'form': form})
-
-# I use this function to read the aligned files from disk after it is saved by the align_sequences() function
-def read_aligned(aligned_seqs_file):
-    return AlignIO.read(aligned_seqs_file, "clustal")
-
-# Function to calculate the distance matrix based on the method
-def cal_dist(aligned_seqs, method):
-    calculator = DistanceCalculator(method)
-    return calculator.get_distance(aligned_seqs)
 
 # Function to construct the phylogenetic tree, given the distance matrix and the method: upgma or nj.
 def construct_tree_from_matrix(distance_matrix, method):
