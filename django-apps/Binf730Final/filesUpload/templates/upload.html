@@ -1,22 +1,95 @@
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" class="sequence-form">
     {% csrf_token %}
     {{ form.non_field_errors }}
-    <div>
+    <div class="form-group">
         {{ form.sequence_input_type.label_tag }}
         {{ form.sequence_input_type }}
     </div>
-    <div id="manual_input" style="display: none;">
-        {{ form.number_of_sequences.label_tag }}
-        {{ form.number_of_sequences }}
+    <div id="manual_input" class="input-section" style="display: none;">
+        <h3>Manual Input</h3>
+        <div class="form-group">
+            {{ form.number_of_sequences.label_tag }}
+            {{ form.number_of_sequences }}
+        </div>
         <div id="sequence_fields"></div>
     </div>
-    <div id="fasta_input" style="display: none;">
-        {{ form.number_of_fasta_files.label_tag }}
-        {{ form.number_of_fasta_files }}
+    <div id="fasta_input" class="input-section" style="display: none;">
+        <h3>FASTA Input</h3>
+        <div class="form-group">
+            {{ form.number_of_fasta_files.label_tag }}
+            {{ form.number_of_fasta_files }}
+        </div>
         <div id="fasta_fields"></div>
     </div>
-    <button type="submit">Upload</button>
+    <button type="submit" class="submit-btn">Upload Sequences</button>
 </form>
+
+<style>
+    .sequence-form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        height: 100px;
+        resize: vertical;
+    }
+
+    .input-section {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-section h3 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .submit-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #0056b3;
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -29,28 +102,24 @@
         const fastaFields = document.getElementById('fasta_fields');
 
         inputType.addEventListener('change', function() {
-            if (this.value === 'manual') {
-                manualInput.style.display = 'block';
-                fastaInput.style.display = 'none';
-            } else {
-                manualInput.style.display = 'none';
-                fastaInput.style.display = 'block';
-            }
+            manualInput.style.display = this.value === 'manual' ? 'block' : 'none';
+            fastaInput.style.display = this.value === 'fasta' ? 'block' : 'none';
         });
+
+        function createInputField(type, name, label) {
+            return `
+                <div class="form-group">
+                    <label for="id_${name}">${label}:</label>
+                    <${type === 'textarea' ? 'textarea' : 'input type="text"'} name="${name}" id="id_${name}" required ${type === 'textarea' ? '></textarea>' : '>'}>
+                </div>
+            `;
+        }
 
         numSequences.addEventListener('change', function() {
             sequenceFields.innerHTML = '';
             for (let i = 1; i <= this.value; i++) {
-                sequenceFields.innerHTML += `
-                    <div>
-                        <label for="id_sequence_id_${i}">Sequence ID ${i}:</label>
-                        <input type="text" name="sequence_id_${i}" id="id_sequence_id_${i}" required>
-                    </div>
-                    <div>
-                        <label for="id_sequence_${i}">Sequence ${i}:</label>
-                        <textarea name="sequence_${i}" id="id_sequence_${i}" required></textarea>
-                    </div>
-                `;
+                sequenceFields.innerHTML += createInputField('text', `sequence_id_${i}`, `Sequence ID ${i}`);
+                sequenceFields.innerHTML += createInputField('textarea', `sequence_${i}`, `Sequence ${i}`);
             }
         });
 
@@ -58,7 +127,7 @@
             fastaFields.innerHTML = '';
             for (let i = 1; i <= this.value; i++) {
                 fastaFields.innerHTML += `
-                    <div>
+                    <div class="form-group">
                         <label for="id_fasta_file_${i}">FASTA File ${i}:</label>
                         <input type="file" name="fasta_file_${i}" id="id_fasta_file_${i}" required>
                     </div>
@@ -67,4 +136,3 @@
         });
     });
 </script>
-
