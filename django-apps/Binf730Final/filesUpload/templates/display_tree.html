@@ -1,9 +1,85 @@
-<h1> Braulio J. Cabral</h1>
-<h1>BINF-730 Final Project based on the paper</h1>
-<h2>Bio.Phylo: A Unified toolkit for processing, analyzing and visualizing phylogenetic trees in Biopython</h2>
-<h2>Eric Talevich, Brandon Invergo, Peter JA Cook, and Brad A. Chapman</h2>
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phylogenetic Tree Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #34495e;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.75em;
+            margin-bottom: 8px;
+        }
+        .tree-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .tree-image {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+        .project-info {
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .author-info {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            .tree-image {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tree-container">
+        <h1>Phylogenetic Tree Display</h1>
+        <div class="project-info">
+            <h2>BINF-730 Final Project</h2>
+            <p>Based on the paper:</p>
+            <h2>"Bio.Phylo: A Unified toolkit for processing, analyzing and visualizing phylogenetic trees in Biopython"</h2>
+            <p class="author-info">by Eric Talevich, Brandon Invergo, Peter JA Cook, and Brad A. Chapman</p>
+        </div>
+        <h2>Phylogenetic tree representing the distances between species:</h2>
+        <img src="{{ tree_image }}" class="tree-image" alt="Phylogenetic Tree">
+        <p>Created by: Braulio J. Cabral</p>
+    </div>
+</body>
+</html>
 
-<h2>Phylogenetic tree representing the distances between species:</h2>
-
-{{ tree_image|safe }}
 
