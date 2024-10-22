@@ -109,9 +109,16 @@ def method_and_score_scheme(request):
 # These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
 # sequence file for later use with the cal_distance() function.
 
+import os
+from django.shortcuts import redirect
+from django.http import HttpResponse
+from Bio import AlignIO, SeqIO
+from Bio.Align.Applications import ClustalOmegaCommandline
+from . import config
+
 def align_sequences(request):
-    sequences = request.session.get('sequences')
-    if not sequences:
+    fasta_file = request.session.get('fasta_file')
+    if not fasta_file:
         return HttpResponse("Sequences not found. Please upload again.")
 
     try:
@@ -119,44 +126,45 @@ def align_sequences(request):
         processed_data_dir = os.path.join(config.DATA_DIR, 'processed_data')
         os.makedirs(processed_data_dir, exist_ok=True)
 
-        # Write sequences to a temporary file
-        input_file = os.path.join(processed_data_dir, "temp_input.fasta")
-        with open(input_file, "w") as f:
-            for i, seq in enumerate(sequences):
-                f.write(f">Seq{i+1}\n{seq}\n")
-
         # Generate a unique name for the aligned file
-        aligned_file_name = f"aligned_{uuid.uuid4().hex[:8]}.fasta"
+        import uuid
+        aligned_file_name = f"aligned_{uuid.uuid4().hex[:8]}.aln"
         aligned_file_path = os.path.join(processed_data_dir, aligned_file_name)
 
         # Set up Clustal Omega command
         clustalomega_cline = ClustalOmegaCommandline(
-            infile=input_file,
+            infile=fasta_file,
             outfile=aligned_file_path,
             verbose=True,
-            auto=True
+            auto=True,
+            outfmt="clustal"
         )
 
         # Run Clustal Omega
         stdout, stderr = clustalomega_cline()
 
-        # Read the aligned sequences
-        aligned_seqs = AlignIO.read(aligned_file_path, "clustal")
+        # Verify the output file exists and is not empty
+        if not os.path.exists(aligned_file_path) or os.path.getsize(aligned_file_path) == 0:
+            raise Exception("Alignment failed to produce output file")
 
-        # Generate HTML response
-        aligned_seq_html = "<h2>Multiple Sequence Alignment:</h2>"
-        aligned_seq_html += f"<pre>{aligned_seqs}</pre>"
+        # Read the aligned sequences to verify format
+        try:
+            aligned_seqs = AlignIO.read(aligned_file_path, "clustal")
+        except ValueError as e:
+            # If reading as CLUSTAL fails, try to read as FASTA and convert
+            seqs = list(SeqIO.parse(fasta_file, "fasta"))
+            if not seqs:
+                raise Exception("No sequences found in the input file")
+            AlignIO.write(seqs, aligned_file_path, "clustal")
+            aligned_seqs = AlignIO.read(aligned_file_path, "clustal")
 
-        # Store the aligned file name in the session
+        # Store the aligned file path in the session
         request.session['aligned_file_name'] = aligned_file_path
-
-        # Clean up temporary input file
-        os.remove(input_file)
 
         return redirect('calculate_distance')
 
     except Exception as e:
-        return HttpResponse(f"Error occurred during alignment: {e}")
+        return HttpResponse(f"Error occurred during alignment: {str(e)}")
 
 # Function to calculate the distance matrix using the user selected method. BLOSUM250, identity, etc.
 # this function collects the input from the user and uses read_aligned() and cal_dist() to read
