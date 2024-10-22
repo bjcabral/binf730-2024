@@ -65,7 +65,7 @@ def upload_sequence_files(request):
 
 # This function prompts the user for the the alignment method (global or local) and the score matrix.
 from .forms import AlignmentMethodForm, SubstitutionMatrixForm
-
+from .forms import AlignmentMethodForm, SubstitutionMatrixForm, AlignmentScoreForm
 
 def method_and_score_scheme(request):
     fasta_file = request.session.get('fasta_file')
@@ -76,8 +76,9 @@ def method_and_score_scheme(request):
     if request.method == 'POST':
         alignment_method_form = AlignmentMethodForm(request.POST)
         substitution_matrix_form = SubstitutionMatrixForm(request.POST)
+        score_form = AlignmentScoreForm(request.POST)
 
-        if alignment_method_form.is_valid() and substitution_matrix_form.is_valid():
+        if alignment_method_form.is_valid() and substitution_matrix_form.is_valid() and score_form.is_valid():
             alignment_method = alignment_method_form.cleaned_data['alignment_method']
             substitution_matrix = substitution_matrix_form.cleaned_data['substitution_matrix']
 
@@ -85,9 +86,9 @@ def method_and_score_scheme(request):
             request.session['substitution_matrix'] = substitution_matrix
 
             if substitution_matrix == 'manual':
-                match_score = substitution_matrix_form.cleaned_data['match_score']
-                mismatch_score = substitution_matrix_form.cleaned_data['mismatch_score']
-                gap_score = substitution_matrix_form.cleaned_data['gap_score']
+                match_score = score_form.cleaned_data['match_score']
+                mismatch_score = score_form.cleaned_data['mismatch_score']
+                gap_score = score_form.cleaned_data['gap_score']
 
                 request.session['match_score'] = match_score
                 request.session['mismatch_score'] = mismatch_score
@@ -97,9 +98,16 @@ def method_and_score_scheme(request):
     else:
         alignment_method_form = AlignmentMethodForm()
         substitution_matrix_form = SubstitutionMatrixForm()
+        score_form = AlignmentScoreForm()
 
-    return render(request, 'method_and_score_scheme.html',
-                  {'method_form': alignment_method_form, 'matrix_form': substitution_matrix_form})
+    return render(request, 'method_and_score_scheme.html', {
+        'method_form': alignment_method_form,
+        'matrix_form': substitution_matrix_form,
+        'score_form': score_form
+    })
+
+
+
 
 # These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
 # sequence file for later use with the cal_distance() function.
