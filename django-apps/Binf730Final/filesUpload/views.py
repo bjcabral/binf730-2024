@@ -1,29 +1,34 @@
 # View file for the upload form
 import os
-from Bio.Align import MultipleSeqAlignment
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+from io import StringIO
+
+#from Bio.Align import MultipleSeqAlignment
+#from Bio.Seq import Seq
+#from Bio.SeqRecord import SeqRecord
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 from Bio import SeqIO, AlignIO, Phylo
-from Bio import Align
+#from Bio import Align
 from .forms import SequenceFileForm, AlignmentScoreForm, AlignmentMethodForm, DistanceMatrixForm, TreeConstructionForm, \
     SubstitutionMatrixForm
 from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor
-from io import StringIO
+#from io import
+from Bio.Align.Applications import ClustalOmegaCommandline
+from . import config
+import uuid
 
 
 # Specify the directory and filename
-output_directory = '/home/ubuntu/binf-730/django-apps/Binf730Final/media'
-aligned_file = f"{output_directory}/aligned.aln"
+output_directory = config.DATA_DIR
+aligned_file = f"{output_directory}/{config.ALIGNED_FILE_NAME}"
 # Save the files in fasta format in one single file when enter manually or when fasta files are uploaded
-output_fasta_file = f"{output_directory}/uploaded_sequences.fasta"
-os.makedirs(os.path.dirname(output_fasta_file), exist_ok=True)
+sequences_file = f"{output_directory}/{config.INPUT_FILE_NAME}"
+os.makedirs(os.path.dirname(aligned_file), exist_ok=True)
 
 # Append the entered sequences, manual or fasta file into one single file for the aligner.
 def append_to_fasta_file(sequence_id, sequence):
-    with open(output_fasta_file, 'a') as fasta_file:
+    with open(sequences_file, 'a') as fasta_file:
         fasta_file.write(f'>{sequence_id}\n{sequence}\n')
 
 # function use to get the input data (sequences) from the users, either manual sequences, or fasta formatted files
@@ -37,7 +42,7 @@ def upload_sequence_files(request):
             sequence_input_type = request.POST.get('sequence_input_type')
 
             # Clear the existing file content
-            open(output_fasta_file, 'w').close()
+            open(sequences_file, 'w').close()
 
             if sequence_input_type == 'manual':
                 number_of_sequences = int(request.POST.get('number_of_sequences'))
@@ -56,7 +61,7 @@ def upload_sequence_files(request):
                         append_to_fasta_file(record.id, str(record.seq))
                     fs.delete(filename)  # Delete the temporary file
 
-                    request.session['fasta_file'] = output_fasta_file
+                    request.session['fasta_file'] = sequences_file
             return redirect('method_and_score_scheme')
         else:
             return HttpResponse('Form is not valid.')
@@ -64,7 +69,7 @@ def upload_sequence_files(request):
         form = SequenceFileForm()
     return render(request, 'upload.html', {'form': form})
 
-# This function prompts the user for the the alignment method (global or local) and the score matrix.
+# This function prompts the user for the alignment method (global or local) and the score matrix.
 def method_and_score_scheme(request):
     fasta_file = request.session.get('fasta_file')
 
@@ -101,68 +106,52 @@ def method_and_score_scheme(request):
         'matrix_form': substitution_matrix_form
     })
 
-
-
-
-
-
 # These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
 # sequence file for later use with the cal_distance() function.
-def align_sequences(request):
-    file_to_align = request.session.get('fasta_file')
-    sequences = request.session.get('sequences')
-    print(f"THESE ARE THE SEQUENCES FROM THE SESSION {sequences}")
-    match_score = request.session.get('match_score')
-    mismatch_score = request.session.get('mismatch_score')
-    gap_score = request.session.get('gap_score')
-    alignment_method = request.session.get('alignment_method')
 
+def align_sequences(request):
+    sequences = request.session.get('sequences')
     if not sequences:
         return HttpResponse("Sequences not found. Please upload again.")
 
     try:
-        aligner = Align.PairwiseAligner()
-        aligner.match_score = match_score
-        aligner.mismatch_score = mismatch_score
-        aligner.query_gap_score = gap_score
-        aligner.target_gap_score = gap_score
-        aligner.mode = alignment_method
+        # Create processed_data directory if it doesn't exist
+        processed_data_dir = os.path.join(config.DATA_DIR, 'processed_data')
+        os.makedirs(processed_data_dir, exist_ok=True)
 
-        aligned_seq_html = "<h2>Pairwise Alignments:</h2>"
-        all_alignments = []
+        # Write sequences to a temporary file
+        input_file = os.path.join(processed_data_dir, "temp_input.fasta")
+        with open(input_file, "w") as f:
+            for i, seq in enumerate(sequences):
+                f.write(f">Seq{i+1}\n{seq}\n")
 
-        for i in range(len(sequences)):
-            for j in range(i + 1, len(sequences)):
-                seq1 = sequences[i]
-                seq2 = sequences[j]
+        # Generate a unique name for the aligned file
+        aligned_file_name = f"aligned_{uuid.uuid4().hex[:8]}.fasta"
+        aligned_file_path = os.path.join(processed_data_dir, aligned_file_name)
 
-                # Perform the alignment
-                alignments = aligner.align(seq1, seq2)
+        # Set up Clustal Omega command
+        clustalomega_cline = ClustalOmegaCommandline(
+            infile=input_file,
+            outfile=aligned_file_path,
+            verbose=True,
+            auto=True
+        )
 
-                # Get the best alignment (first one in list)
-                best_alignment = alignments[0]
+        # Run Clustal Omega
+        stdout, stderr = clustalomega_cline()
 
-                # Add the alignment to the HTML response
-                aligned_seq_html += f"<h3>Alignment between Sequence {i+1} and Sequence {j+1}:</h3>"
-                aligned_seq_html += f"<pre>{best_alignment}</pre>"
+        # Read the aligned sequences
+        aligned_seqs = AlignIO.read(aligned_file_path, "fasta")
 
-                # Store the alignment for writing to file
-                all_alignments.append((f"Seq{i+1}", str(best_alignment[0])))
-                all_alignments.append((f"Seq{j+1}", str(best_alignment[1])))
+        # Generate HTML response
+        aligned_seq_html = "<h2>Multiple Sequence Alignment:</h2>"
+        aligned_seq_html += f"<pre>{aligned_seqs}</pre>"
 
-        # Create a MultipleSeqAlignment object
-        msa = MultipleSeqAlignment([
-            SeqRecord(Seq(seq), id=name) for name, seq in all_alignments
-        ])
+        # Store the aligned file name in the session
+        request.session['aligned_file_name'] = aligned_file_path
 
-        # Write alignment to Clustal format
-        AlignIO.write(msa, aligned_file_name, 'clustal')
-
-        # Check if file was created and add to the response
-        if os.path.exists(aligned_file_name):
-            aligned_seq_html += f"<p>Alignment file has been saved to: {aligned_file_name}</p>"
-        else:
-            aligned_seq_html += "<p>Failed to save alignment file.</p>"
+        # Clean up temporary input file
+        os.remove(input_file)
 
         return redirect('calculate_distance')
 
@@ -177,6 +166,7 @@ def calculate_distance(request):
         form = DistanceMatrixForm(request.POST)
         if form.is_valid():
             distance_method = form.cleaned_data['distance_method']
+            aligned_file_name = request.session.get('aligned_file_name')
             aligned_seqs = read_aligned(aligned_file_name)
             distance_matrix = cal_dist(aligned_seqs, distance_method)
             request.session['distance_matrix'] = distance_matrix.tolist()  # Convert to list for JSON serialization
