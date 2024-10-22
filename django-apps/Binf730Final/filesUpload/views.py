@@ -1,23 +1,16 @@
 # View file for the upload form
 import os
+from . import config
 from io import StringIO
-
-#from Bio.Align import MultipleSeqAlignment
-#from Bio.Seq import Seq
-#from Bio.SeqRecord import SeqRecord
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 from Bio import SeqIO, AlignIO, Phylo
-#from Bio import Align
 from .forms import SequenceFileForm, AlignmentScoreForm, AlignmentMethodForm, DistanceMatrixForm, TreeConstructionForm, \
     SubstitutionMatrixForm
 from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor, DistanceMatrix
-#from io import
 from Bio.Align.Applications import ClustalOmegaCommandline
-from . import config
 import uuid
-
 
 # Specify the directory and filename
 output_directory = config.DATA_DIR
@@ -108,14 +101,6 @@ def method_and_score_scheme(request):
 
 # These methods uses the Align() function from BioPython to execute the sequence alignment and save the aligned
 # sequence file for later use with the cal_distance() function.
-
-import os
-from django.shortcuts import redirect
-from django.http import HttpResponse
-from Bio import AlignIO, SeqIO
-from Bio.Align.Applications import ClustalOmegaCommandline
-from . import config
-
 def align_sequences(request):
     fasta_file = request.session.get('fasta_file')
     if not fasta_file:
