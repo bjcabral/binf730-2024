@@ -166,6 +166,10 @@ def align_sequences(request):
     except Exception as e:
         return HttpResponse(f"Error occurred during alignment: {str(e)}")
 
+# Function to read the aligned sequences file
+def read_aligned(aligned_seqs_file):
+    return AlignIO.read(aligned_seqs_file, "clustal")
+
 # Function to calculate the distance matrix using the user selected method. BLOSUM250, identity, etc.
 # this function collects the input from the user and uses read_aligned() and cal_dist() to read
 # the aligned files in clustalo format and calculate the distance matrix.
@@ -179,17 +183,21 @@ def calculate_distance(request):
             if not aligned_file_name:
                 return HttpResponse("Aligned sequences not found. Please align sequences first.")
 
-            aligned_seqs = read_aligned(aligned_file_name)
-            distance_matrix = cal_dist(aligned_seqs, distance_method)
+            try:
+                aligned_seqs = read_aligned(aligned_file_name)
+                calculator = DistanceCalculator(distance_method)
+                distance_matrix = calculator.get_distance(aligned_seqs)
 
-            # Convert DistanceMatrix to a list of lists
-            matrix_list = [list(row) for row in distance_matrix.matrix]
+                # Convert DistanceMatrix to a list of lists
+                matrix_list = [list(row) for row in distance_matrix]
 
-            # Store both the matrix and the names in the session
-            request.session['distance_matrix'] = matrix_list
-            request.session['matrix_names'] = distance_matrix.names
+                # Store both the matrix and the names in the session
+                request.session['distance_matrix'] = matrix_list
+                request.session['matrix_names'] = distance_matrix.names
 
-            return redirect('construct_tree')
+                return redirect('construct_tree')
+            except Exception as e:
+                return HttpResponse(f"Error calculating distance matrix: {str(e)}")
     else:
         form = DistanceMatrixForm()
     return render(request, 'calculate_distance.html', {'form': form})
