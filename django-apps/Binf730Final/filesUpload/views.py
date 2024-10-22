@@ -222,14 +222,13 @@ def construct_tree_from_matrix(distance_matrix, method):
     elif method == 'nj':
         return constructor.nj(distance_matrix)
 
-# Finally, we draw a nice phylogenetic tree
+# Finally, we draw a nice phylogenetic tree using the function below called by the construct_tree(request)
+# function above
 def draw_tree(tree):
     tree_io = StringIO()
     Phylo.draw(tree, do_show=False, write_to=tree_io, format='svg')
     tree_image = tree_io.getvalue()
+    tree_io.close()
     return tree_image
-
-
-
 
 
