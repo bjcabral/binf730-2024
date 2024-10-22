@@ -1,3 +1,10 @@
+# BINF-730 Final Project
+# Fall 2024 Semester
+# Student Name: Braulio J. Cabral
+# Professor: Aman Ullah
+# George Mason University
+# Bioinformatics and Computations Biology Graduate Certificate
+
 # View file for the upload form
 import os
 from . import config
