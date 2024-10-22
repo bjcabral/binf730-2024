@@ -141,7 +141,7 @@ def align_sequences(request):
         stdout, stderr = clustalomega_cline()
 
         # Read the aligned sequences
-        aligned_seqs = AlignIO.read(aligned_file_path, "fasta")
+        aligned_seqs = AlignIO.read(aligned_file_path, "clustal")
 
         # Generate HTML response
         aligned_seq_html = "<h2>Multiple Sequence Alignment:</h2>"
