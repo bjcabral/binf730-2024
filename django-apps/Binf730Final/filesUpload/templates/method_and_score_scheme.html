@@ -3,6 +3,14 @@
 
   <div class="form-section">
     <h2>Substitution Matrix</h2>
+    <p>Substitution matrices server two fundamental purposes in sequence alignment: a) Quantify the
+    likelihood of one amino acid being replaced by another during evolution and b) assign scores
+    to amino acid matches and mismatches to guide the alignment algorithm to create an optimal
+    alignment. Some popular substitution matrices include Point Accepted Mutation (PAM), BLOck
+    SUbstitution Matrix (BLOSUM), Variable Time Maximum Likelihood Matrices, and many other
+    specialized matrices. For this exercise, you can also manually enter your own score schema
+    for match, mismatch, and gap, or use a few supported by this program, namely, BLOSUM62, 50, and 80
+    and PAM250 and 100.</p>
     <div class="matrix-inputs">
       {{ matrix_form.as_p }}
     </div>
