@@ -132,39 +132,39 @@
     }
 
    .matrix-table th,
-   .matrix-table td {
-       border-bottom:none;
-       padding-top:.5em;
-       padding-bottom:.5em;
-       text-align:center;
-       background:#f8f9fa;
-       color:#333;
-       font-size:.9em;
-       line-height:.9em;
-       vertical-align:center;
-       white-space:no-wrap;
-       text-overflow:hidden;
-       overflow:hidden;
-       max-width:none;
-       min-width:none;
-       height:auto;
-       box-sizing:border-box;
-       border-spacing:none;
-       border-collapse:none;
-   }
+.matrix-table td {
+    border-bottom: 1px solid #ddd; /* Add a border for better visibility */
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    text-align: center;
+    background-color: #f8f9fa; /* Light gray background */
+    color: #333; /* Dark text color */
+    font-size: 0.9em;
+    line-height: 0.9em;
+    vertical-align: center;
+    white-space: nowrap;
+    text-overflow: clip;
+    overflow: hidden;
+    max-width: none;
+    min-width: 300px;
+    height: auto;
+    box-sizing: border-box;
+}
 
-   .matrix-table th {
-       background-color:#f2f2f2;
-       font-weight:bold;
-   }
+.matrix-table th {
+    background-color: #f2f2f2; /* Lighter gray for headers */
+    font-weight: bold;
+}
+
+
 
    .next-step {
-      margin-top :20 px ; text-align :center ; }
+      margin-top :20px ; text-align :center ; }
 
-   .next-btn { display :inline-block ; padding :12 px ; background-color :#3498 db ; color :white ; text-decoration :none ; border-radius :4 px ; font-size :18 px ; transition :background-color .3 s ease ; }
+   .next-btn { display :inline-block ; padding :12px ; background-color :#3498db ; color :white ; text-decoration :none ; border-radius :4px ; font-size :18px ; transition :background-color.3s ease ; }
 
-   .next-btn:hover { background-color :#2980 b9 ; }
+   .next-btn:hover { background-color :#2980b9 ; }
 
-   @media (max-width :768 px ) { .distance-matrix-form { padding :20 px ; } h2 { font-size :20 px ; } .submit-btn { font-size :16 px ; } }
+   @media (max-width :768px ) { .distance-matrix-form { padding :20px ; } h2 { font-size :20px ; } .submit-btn { font-size :16px ; } }
 
 </style>
