@@ -1,0 +1,106 @@
+{% load custom_filters %}
+<form method="post" class="distance-matrix-form">
+    {% csrf_token %}
+    <h2>Distance Matrix Calculation</h2>
+    <p>Distance matrices are important in bioinformatics, in particular for sequence analysis and
+    phylogenetic trees construction. A distance matrix is a square matrix containing pairwise
+    distances between a set of biological sequences (DNA, RNA, or proteins).
+    Some key features include:
+    Symmetric. The distance from sequence A to sequence B is the same as B to A.
+    Diagonal elements are zero; the distance of a sequence to itself is 0.
+    Size: For n sequences, the matrix is n x n.
+
+    To measure the distances and fill the matrix, several algorithms exists such as:
+    Nucleotide/Amino Acid Divergence: Counts the number of mismatches between sequences, but
+    does not account for multiple substitutions at the same site.
+    Jukes-Cantor Distance: Accounts for multiple substitution. Assumes equal rates for all substitutions.
+    Kimura Two-Parameter Model: Distinguishes between transitions (A<->G, C<->T), more realistic for
+    DNA sequences.
+    Euclidean Distance: Used for gene expression data.
+    Other distance calculation methods are derived from existing matrices such as BLOSUM and PAM</p>
+
+    <div class="form-inputs">
+        {{ form.as_p }}
+    </div>
+    <button type="submit" class="submit-btn">Calculate Distance Matrix</button>
+</form>
+
+{% if matrix %}
+<div class="matrix-result">
+    <h3>Distance Matrix ({{ distance_method }})</h3>
+    <div class="table-container">
+        <table class="matrix-table">
+            <tr>
+                <th></th>
+                {% for name in matrix_names %}
+                    <th>{{ name }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in matrix %}
+                <tr>
+                    <th>{{ matrix_names|index:forloop.counter0 }}</th>
+                    {% for value in row %}
+                        <td>{{ value|floatformat:4 }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="next-step">
+        <a href="{% url 'construct_tree' %}" class="next-btn">Proceed to Phylogenetic Tree Construction</a>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    /* ... (keep existing styles) ... */
+
+    .matrix-result {
+        margin-top: 30px;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin-bottom: 20px;
+    }
+
+    .matrix-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .matrix-table th, .matrix-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .matrix-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .next-step {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .next-btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 18px;
+        transition: background-color 0.3s ease;
+    }
+
+    .next-btn:hover {
+        background-color: #2980b9;
+    }
+</style>
