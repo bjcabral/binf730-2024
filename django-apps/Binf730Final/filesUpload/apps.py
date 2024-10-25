@@ -1,9 +1,9 @@
 # File for apps label definitions
 from django.apps import AppConfig
 
-class FileUploadsConfig(AppConfig):
+class FilesUploadConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'fileUploads'
+    name = 'filesUpload'
 
     def ready(self):
-        import fileUploads.templatetags.custom_filters
+        import filesUpload.templatetags.custom_filters
