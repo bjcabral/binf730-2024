@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['10.1.96.75','107.21.212.139']
 # Application definition
 
 INSTALLED_APPS = [
-    'filesUpload.apps.MyAppConfig',
+    'filesUpload.apps.FileUploadsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
