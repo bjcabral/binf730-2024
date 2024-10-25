@@ -26,32 +26,31 @@
 </form>
 
 {% if matrix and show_next_step %}
-<div class="matrix-result">
-    <h3>Distance Matrix ({{ distance_method }})</h3>
-    <div class="table-container">
-        <table class="matrix-table">
-            <tr>
-                <th></th>
-                {% for name in matrix_names %}
-                    <th>{{ name }}</th>
-                {% endfor %}
-            </tr>
-            {% for row in matrix %}
+    <div class="matrix-result">
+        <h3>Distance Matrix ({{ distance_method }})</h3>
+        <div class="table-container">
+            <table class="matrix-table">
                 <tr>
-                    <th>{{ matrix_names|index:forloop.counter0 }}</th>
-                    {% for value in row %}
-                        <td>{{ value|floatformat:4 }}</td>
+                    <th></th>
+                    {% for name in matrix_names %}
+                        <th>{{ name }}</th>
                     {% endfor %}
                 </tr>
-            {% endfor %}
-        </table>
+                {% for row in matrix %}
+                    <tr>
+                        <th>{{ matrix_names|index:forloop.counter0 }}</th>
+                        {% for value in row %}
+                            <td>{{ value|floatformat:4 }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="next-step">
+            <a href="{% url 'construct_tree' %}" class="next-btn">Proceed to Phylogenetic Tree Construction</a>
+        </div>
     </div>
-    <div class="next-step">
-        <a href="{% url 'construct_tree' %}" class="next-btn">Proceed to Phylogenetic Tree Construction</a>
-    </div>
-</div>
 {% endif %}
-
 <style>
     .distance-matrix-form {
         max-width: 800px;

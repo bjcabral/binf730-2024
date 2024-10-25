@@ -189,18 +189,14 @@ def calculate_distance(request):
                 # Store both the matrix and the names in the session
                 request.session['distance_matrix'] = matrix_list
                 request.session['matrix_names'] = distance_matrix.names
-
-                # Create a formatted string representation of the matrix
-                matrix_str = ""
-                for i, row in enumerate(matrix_list):
-                    matrix_str += f"{distance_matrix.names[i]}: {' '.join([f'{x:.4f}' for x in row])}\n"
+                request.session['distance_method'] = distance_method
+                request.session['show_next_step'] = True
 
                 # Render the template with the matrix data
                 return render(request, 'calculate_distance.html', {
                     'form': form,
                     'matrix': matrix_list,
                     'matrix_names': distance_matrix.names,
-                    'matrix_str': matrix_str,
                     'distance_method': distance_method,
                     'show_next_step': True
                 })
@@ -209,7 +205,7 @@ def calculate_distance(request):
     else:
         form = DistanceMatrixForm()
     return render(request, 'calculate_distance.html', {'form': form})
-             
+
 # Function to construct the tree from the distance matrix using the algorithm selected by the user
 # such as Neighbor Joining (nj) or UPGMA.
 # uses matplotlib directly.

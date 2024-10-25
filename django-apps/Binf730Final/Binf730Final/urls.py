@@ -9,3 +9,4 @@ urlpatterns = [
     path('calculate-distance/', views.calculate_distance, name='calculate_distance'),
     path('construct-tree/', views.construct_tree, name='construct_tree'),
 ]
+
