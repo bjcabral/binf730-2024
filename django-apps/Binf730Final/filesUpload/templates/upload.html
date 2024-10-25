@@ -1,9 +1,145 @@
+<form method="post" enctype="multipart/form-data" class="sequence-form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
 
-.blue-line {
-    border: none;
-    height: 2px;
-    background-color: blue;
-}
+    <h2>Phylogenetic Tree Construction</h2>
+
+    <div class="form-description">
+        <p>This application implements code developed in BINF-730 homework II to construct a Phylogenetic
+        tree from sequence alignment. Different to homework II, this time implementing Bio.Phylo, a package for
+        processing, analyzing and visualizing phylogenetic trees in Biopython. Based on the research paper
+        "Bio.Phylo: A unified toolkit" by Eric Talevich, Brandon Invergo, Peter JA Cook, and Brand A. Chapman.
+        <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-209" target="_blank">Read more</a></p>
+    <hr class="blue-line">
+    </div>
+
+    <div class="form-group">
+        {{ form.sequence_input_type.label_tag }}
+        {{ form.sequence_input_type }}
+    </div>
+
+    <div id="manual_input" class="input-section" style="display: none;">
+        <h3>Manual Input</h3>
+        <div class="form-group">
+            {{ form.number_of_sequences.label_tag }}
+            {{ form.number_of_sequences }}
+        </div>
+        <div id="sequence_fields"></div>
+    </div>
+
+    <div id="fasta_input" class="input-section" style="display: none;">
+        <h3>FASTA Input</h3>
+        <div class="fasta-description">
+            <p>FASTA stands for Fast All, derived from previous formats such as FASTA-P for protein sequences
+            and FAST-N for nucleotides. (All) indicates it works with any alphabet, protein or nucleotide.
+            FASTA is a widely used text-based format for representing nucleotides or amino acids.</p>
+            <p>The format is very simple: A header line starting with greater-than symbol (>) followed by the
+            sequence identifier and optional description, and the sequence data in the next line.</p>
+            <p>Example:</p>
+            <pre><code>>Alien| Alien DNA found on the moon
+ATTTCCCGGCCTTG</code></pre>
+        </div>
+        <div class="form-group">
+            {{ form.number_of_fasta_files.label_tag }}
+            {{ form.number_of_fasta_files }}
+        </div>
+        <div id="fasta_fields"></div>
+    </div>
+
+    <button type="submit" class="submit-btn">Upload Sequences</button>
+</form>
+
+<style>
+    .sequence-form {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+    }
+
+    h2 {
+        color: #333;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .form-description {
+        background-color: #e8f4f8;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .input-section {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .fasta-description {
+        background-color: #f0f0f0;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    pre {
+        background-color: #e8e8e8;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+
+    .submit-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .blue-line {
+        border: none;
+        height: 2px;
+        background-color: #3498db;
+        margin: 20px 0;
+    }
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
