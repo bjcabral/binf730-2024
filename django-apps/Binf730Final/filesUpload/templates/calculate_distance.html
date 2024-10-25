@@ -1,6 +1,23 @@
 <form method="post" class="distance-matrix-form">
     {% csrf_token %}
     <h2>Distance Matrix Calculation</h2>
+    <p>Distance matrices are important in bioinformatics, in particular for sequence analysis and
+    phylogenetic tress construction. A distance matrix is a square matrix containing pairwise
+    distances between a set of biological sequences (DNA, RNA, or proteins).
+    Some key features include:
+    Symmetric. The distance from sequence A to sequence B is the same as B to A.
+    Diagonal elements are zero; the distance of a sequence to itself is 0.
+    Size: For n sequences, the matrix is n x n.
+
+    To measure the distances and fill the matrix, several algorithms exists such as:
+    Nucleotide/Amino Acid Divergence: Counts the number of mismatches between sequences, but
+    does not account for multiple substitutions at the sam site.
+    Jukes-Cantor Distance: Accounts for multiple substitution. Assumes equal rates for all substitutions.
+    Kimura Two-Parameter Model: Distinguishes between transitions (A<->G, C<->T), more realistic for
+    DNA sequences.
+    Euclidean Distance: Used for gene expression data.
+    Other distance calculation methods are derived from existing matrices such as BLOSUM and PAM</p>
+
     <div class="form-inputs">
         {{ form.as_p }}
     </div>

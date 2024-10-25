@@ -1,6 +1,13 @@
 <form method="post" class="tree-construction-form">
     {% csrf_token %}
     <h2>Phylogenetic Tree Construction</h2>
+    <p>To infer the evolutionary relationships or construct phylogenetic tress, common methods
+    are used including UPGMA (Unweighted Pair Group Method with Arithmetic Mean): This method
+    assumes a constant rate of evolution, and builds the tree b iteratively clustering the
+    closest sequences. Neighbor-Joining (NJ): Does not assume constant rate of evolution
+    and construct the tree by minimizing the total branch length.
+    WPGMA (Weighted Pair Group Method with Arithmetic Mean): Similar to UPGMA, but
+    different on how distances are calculated. This application implements UPGMA and Neighbor-Joining</p>
     <div class="form-inputs">
         {{ form.as_p }}
     </div>
