@@ -2,7 +2,12 @@
     {% csrf_token %}
     {{ form.non_field_errors }}
     <div class="form-group">
-        <h2>Test to see if this will show up where we want text</h2>
+        <p>This application implements code developed in BINF-730 homework II to construct a Phylogenetic
+        tree from sequence alignment. Different to homework II, this time implementing Bio.Phylo, a package for
+            processing, analyzing and visualizing phylogenetic tress in Biopython. Based on the research paper
+            Bio.Phylo: A unfied toolkit. by Eric Talevich, Brandon Invergo, Peter JA Cook, and Brand A. Chapman.
+            https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-209
+        </p>
         {{ form.sequence_input_type.label_tag }}
         {{ form.sequence_input_type }}
     </div>
