@@ -168,10 +168,6 @@ def read_aligned(aligned_seqs_file):
 # Function to calculate the distance matrix using the user selected method. BLOSUM250, identity, etc.
 # this function collects the input from the user and uses read_aligned() and cal_dist() to read
 # the aligned files in clustalo format and calculate the distance matrix.
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-import numpy as np
-
 def calculate_distance(request):
     if request.method == 'POST':
         form = DistanceMatrixForm(request.POST)
@@ -205,7 +201,8 @@ def calculate_distance(request):
                     'matrix': matrix_list,
                     'matrix_names': distance_matrix.names,
                     'matrix_str': matrix_str,
-                    'distance_method': distance_method
+                    'distance_method': distance_method,
+                    'show_next_step': True
                 })
             except Exception as e:
                 return HttpResponse(f"Error calculating distance matrix: {str(e)}")
@@ -213,7 +210,6 @@ def calculate_distance(request):
         form = DistanceMatrixForm()
     return render(request, 'calculate_distance.html', {'form': form})
              
-
 # Function to construct the tree from the distance matrix using the algorithm selected by the user
 # such as Neighbor Joining (nj) or UPGMA.
 # uses matplotlib directly.
