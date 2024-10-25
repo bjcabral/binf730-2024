@@ -15,6 +15,14 @@
     </div>
     <div id="fasta_input" class="input-section" style="display: none;">
         <h3>FASTA Input</h3>
+        <h4>FASTA stands for Fast All, derived from previous formats such as FASTA -P for protein sequences</h4>
+        <h4>and FAST-N for nucleotides. All indicates it works with any alphabet, protein of nucleotide</h4>
+        <h4>FASTA is a widely used text-based format for representing nucleotides or amino acid.</h4>
+        <h4>Format is very simple: A header line starting with greater-than symbol (>) followed by the </h4>
+        <h4>sequence identifier and optional description, an the sequence data in the next line</h4>
+        <h4> Example:</h4>
+        <h4>\>Alien| Alien dna found on the moom</h4>
+        <h4>ATTTCCCGGCCTTG</h4>
         <div class="form-group">
             {{ form.number_of_fasta_files.label_tag }}
             {{ form.number_of_fasta_files }}
