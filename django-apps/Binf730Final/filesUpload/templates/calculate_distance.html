@@ -25,7 +25,7 @@
     <button type="submit" class="submit-btn">Calculate Distance Matrix</button>
 </form>
 
-{% if matrix %}
+{% if matrix and show_next_step%}
 <div class="matrix-result">
     <h3>Distance Matrix ({{ distance_method }})</h3>
     <div class="table-container">
