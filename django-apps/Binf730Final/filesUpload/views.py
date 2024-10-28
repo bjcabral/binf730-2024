@@ -275,6 +275,11 @@ def export_tree(request):
     if request.method == 'POST':
         tree = request.session.get('constructed_tree')
         format = request.POST.get('format')
+        print(f"Tree in session: {tree}")
+        print(f"Format received: {format}")
+
+        if not tree or not format:
+            return HttpResponse("Missing tree or format data", status=400)
 
         if tree and format:
             # Convert the tree string back to a Phylo tree object
