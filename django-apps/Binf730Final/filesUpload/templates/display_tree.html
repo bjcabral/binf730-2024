@@ -79,5 +79,16 @@
             {{ tree_image|safe }}
         </div>
     </div>
+<!-- Export form -->
+    <form action="{% url 'export_tree' %}" method="post">
+        {% csrf_token %}
+        <h3>Export Tree</h3>
+        <select name="format">
+            <option value="newick">Newick</option>
+            <option value="phyloxml">phyloXML</option>
+            <option value="nexus">Nexus</option>
+        </select>
+        <button type="submit">Export</button>
+    </form>
 </body>
 </html>

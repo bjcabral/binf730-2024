@@ -268,4 +268,29 @@ def draw_tree(tree):
 
     return img_tag
 
+# Function to export phylogenetic tree in Newick, PhyloXML, or NEXUS. The user will select
+# what format they want to export the tree, save it in their computer, and use a different
+# application that support the selected format to open the file.
+def export_tree(request):
+    if request.method == 'POST':
+        tree = request.session.get('constructed_tree')
+        format = request.POST.get('format')
+
+        if tree and format:
+            # Convert the tree string back to a Phylo tree object
+            tree = Phylo.read(StringIO(tree), 'newick')
+
+            # Create a StringIO object to write the tree
+            tree_io = StringIO()
+
+            # Write the tree in the selected format
+            Phylo.write(tree, tree_io, format)
+
+            # Create the HTTP response with the file
+            response = HttpResponse(tree_io.getvalue(), content_type='text/plain')
+            response['Content-Disposition'] = f'attachment; filename="phylogenetic_tree.{format}"'
+
+            return response
+
+    return HttpResponse("Error: Unable to export tree", status=400)
 
