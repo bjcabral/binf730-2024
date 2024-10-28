@@ -227,6 +227,13 @@ def construct_tree(request):
                     distance_matrix[i, j] = value
 
             tree = construct_tree_from_matrix(distance_matrix, tree_method)
+            # Store the tree in the session as a Newick string, this will be used
+            # by the export_tree function later.
+            tree_io =StringIO()
+            Phylo.write(tree, tree_io, 'newick')
+            request.session['constructed_tree'] = tree_io.getvalue()
+
+            # Draw the tree to display in display_tree.html
             tree_image = draw_tree(tree)
             return render(request, 'display_tree.html', {'tree_image': tree_image})
     else:
