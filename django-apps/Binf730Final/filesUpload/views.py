@@ -3,7 +3,7 @@
 # Student Name: Braulio J. Cabral
 # Professor: Aman Ullah
 # George Mason University
-# Bioinformatics and Computations Biology Graduate Certificate
+# Bioinformatics and Computation Biology Graduate Certificate
 
 # View file for the upload form
 import os
