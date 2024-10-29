@@ -260,7 +260,7 @@ def construct_tree_from_matrix(distance_matrix, method):
 
 def draw_tree(tree):
     fig, ax = plt.subplots(figsize=(10, 8))
-    Phylo.draw(tree, axes=ax, do_show=False)
+    Phylo.draw(tree, axes=ax, do_show=True)
 
     # Save the plot to a BytesIO object
     buf = BytesIO()
