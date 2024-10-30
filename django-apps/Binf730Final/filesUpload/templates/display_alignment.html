@@ -1,19 +1,65 @@
-{% extends 'base.html' %}
+<form method="post" class="alignment-form">
+    {% csrf_token %}
 
-{% block content %}
-<h2>Aligned Sequences</h2>
-<p>Alignment Method: {{ alignment_method }}</p>
-<p>Substitution Matrix: {{ substitution_matrix }}</p>
+    <h2>Aligned Sequences</h2>
 
-<pre>
+    <div class="alignment-output">
+        <pre>
 {% for record in aligned_seqs %}
 >{{ record.id }}
 {{ record.seq }}
 {% endfor %}
-</pre>
+        </pre>
+    </div>
 
-<form action="{% url 'calculate_distance' %}" method="post">
-    {% csrf_token %}
-    <button type="submit">Calculate Distance Matrix</button>
+    <button type="submit" class="submit-btn">Calculate Distance Matrix</button>
 </form>
-{% endblock %}
+
+<style>
+    .alignment-form {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+    }
+
+    h2 {
+        color: #333;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .alignment-output {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    pre {
+        background-color: #e8e8e8;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+
+    .submit-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    .submit-btn:hover {
+        background-color: #2980b9;
+    }
+</style>
