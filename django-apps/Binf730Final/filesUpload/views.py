@@ -151,7 +151,7 @@ def align_sequences(request):
                 raise Exception("No sequences found in the input file")
             AlignIO.write(seqs, aligned_file_path, "clustal")
             aligned_seqs = AlignIO.read(aligned_file_path, "clustal")
-
+            print(f"The aligned sequence file content is: {aligned_seqs}")
         # Store the aligned file path in the session
         request.session['aligned_file_name'] = aligned_file_path
         # Display the aligned sequences
