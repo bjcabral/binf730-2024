@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Aligned Sequences</h2>
+<p>Alignment Method: {{ alignment_method }}</p>
+<p>Substitution Matrix: {{ substitution_matrix }}</p>
+
+<pre>
+{% for record in aligned_seqs %}
+>{{ record.id }}
+{{ record.seq }}
+{% endfor %}
+</pre>
+
+<form action="{% url 'calculate_distance' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Calculate Distance Matrix</button>
+</form>
+{% endblock %}
