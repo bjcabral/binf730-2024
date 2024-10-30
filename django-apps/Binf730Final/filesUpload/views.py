@@ -151,11 +151,12 @@ def align_sequences(request):
                 raise Exception("No sequences found in the input file")
             AlignIO.write(seqs, aligned_file_path, "clustal")
             aligned_seqs = AlignIO.read(aligned_file_path, "clustal")
-            print(f"THE ALIGNED sequence file content is: {aligned_seqs}")
-            print(f"THE ALIGNED FILE PATH IS {aligned_file_path}")
+
         # Store the aligned file path in the session
         request.session['aligned_file_name'] = aligned_file_path
         # Display the aligned sequences
+        print(f"THE ALIGNED sequence file content is: {aligned_seqs}")
+        print(f"THE ALIGNED FILE PATH IS {aligned_file_path}")
         return render(request, 'display_alignment.html', {
             'aligned_seqs': aligned_seqs, 'alignment_method':
             request.session.get('alignment_method'), 'substitution_matrix':
