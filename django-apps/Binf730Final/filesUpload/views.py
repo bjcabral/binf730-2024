@@ -154,11 +154,13 @@ def align_sequences(request):
 
         # Store the aligned file path in the session
         request.session['aligned_file_name'] = aligned_file_path
+        # Read the content of the output file from clustalo to display in the display_alignment.html
+        # template
+        with open(aligned_file_path, 'r') as aligned_file:
+            alignment_content = aligned_file.read()
         # Display the aligned sequences
-        print(f"THE ALIGNED sequence file content is: {aligned_seqs}")
-        print(f"THE ALIGNED FILE PATH IS {aligned_file_path}")
         return render(request, 'display_alignment.html', {
-            'aligned_seqs': aligned_seqs, 'alignment_method':
+            'alignment_content': alignment_content, 'alignment_method':
             request.session.get('alignment_method'), 'substitution_matrix':
             request.session.get('substitution_matrix'),
         })

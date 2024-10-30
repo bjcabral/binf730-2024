@@ -4,12 +4,7 @@
     <h2>Aligned Sequences</h2>
 
     <div class="alignment-output">
-        <pre>
-{% for record in aligned_seqs %}
->{{ record.id }}
-{{ record.seq }}
-{% endfor %}
-        </pre>
+        <pre>{{ alignment_content }}</pre>
     </div>
 
     <button type="submit" class="submit-btn">Calculate Distance Matrix</button>
