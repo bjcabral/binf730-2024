@@ -3,7 +3,7 @@
 # Student Name: Braulio J. Cabral
 # Professor: Aman Ullah
 # George Mason University
-# Bioinformatics and Computations Biology Graduate Certificate
+# Bioinformatics and Computation Biology Graduate Certificate
 
 # View file for the upload form
 import os
@@ -259,7 +259,7 @@ def construct_tree_from_matrix(distance_matrix, method):
 
 def draw_tree(tree):
     fig, ax = plt.subplots(figsize=(10, 8))
-    Phylo.draw(tree, axes=ax, do_show=False)
+    Phylo.draw(tree, axes=ax, do_show=True)
 
     # Save the plot to a BytesIO object
     buf = BytesIO()
