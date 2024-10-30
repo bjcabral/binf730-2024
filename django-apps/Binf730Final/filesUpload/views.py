@@ -122,7 +122,6 @@ def align_sequences(request):
         os.makedirs(processed_data_dir, exist_ok=True)
 
         # Generate a unique name for the aligned file
-        import uuid
         aligned_file_name = f"aligned_{uuid.uuid4().hex[:8]}.aln"
         aligned_file_path = os.path.join(processed_data_dir, aligned_file_name)
 
