@@ -1,4 +1,4 @@
-<form method="post" class="alignment-form">
+<form action="{% url 'calculate_distance' %}" method="post" class="alignment-form">
     {% csrf_token %}
 
     <h2>Aligned Sequences</h2>
