@@ -8,11 +8,11 @@ class AlignmentScoreForm(forms.Form):
     gap_score = forms.IntegerField(label='Gap Score: ')
 
 class SequenceFileForm(forms.Form):
-    SEQUENCE_INPUT_CHOICES = [
-        ('manual', 'Manual Input'),
-        ('fasta', 'FASTA File Upload'),
-    ]
-    sequence_input_type = forms.ChoiceField(choices=SEQUENCE_INPUT_CHOICES)
+    sequence_input_type = forms.ChoiceField(
+        choices=[('', 'Select Input Type'), ('manual', 'Manual Input'),
+                 ('fasta', 'FASTA Input')],
+                 required=True
+                  )
     number_of_sequences = forms.IntegerField(min_value=1, required=False)
     number_of_fasta_files = forms.IntegerField(min_value=1, required=False)
 
