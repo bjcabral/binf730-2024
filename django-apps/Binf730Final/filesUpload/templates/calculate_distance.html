@@ -4,18 +4,18 @@
     <h2>Distance Matrix Calculation</h2>
     <p>Distance matrices are important in bioinformatics, in particular for sequence analysis and
     phylogenetic trees construction. A distance matrix is a square matrix containing pairwise
-    distances between a set of biological sequences (DNA, RNA, or <br>
+    distances between a set of biological sequences (DNA, RNA)<br><br>
 
         To measure the distances and fill the matrix, several algorithms exists such as:
     Nucleotide/Amino Acid Divergence: Counts the number of mismatches between sequences, but
     does not account for multiple substitutions at the same site.
     Jukes-Cantor Distance: Accounts for multiple substitution. Assumes equal rates for all substitutions.
     Kimura Two-Parameter Model: Distinguishes between transitions (A<->G, C<->T), more realistic for
-    DNA sequences.<br>
+    DNA sequences.<br><br>
 
     Other distance calculation methods are derived from existing matrices such as BLOSUM and PAM.
     This application implements five methods of those supported by bioPhylo, namely; Identity, Blast Nucleic
-    Acid, Transition/Transversion, BLOSUM62 and PAM250.<br>
+    Acid, Transition/Transversion, BLOSUM62 and PAM250.<br><br>
 
     Identy: Is the simplest approach for calculating sequence distances. Distance = 1 - (Number of identical
     positions / Total alignment length. This method does not account for evolutionary relationships or
@@ -23,14 +23,14 @@
     more divergent sequences.<br>
 
     BLAST Nucleic Acid: (Basic Local Alignment Search Tool) uses a heuristic approach to calculate sequence
-    similarity.<br>
+    similarity.<br><br>
 
     Transition/Traversion: This method distinguishes between two types of nucleotide substitutions:
     Transitions: substitutions betwen purines (A<->G) or between pyrimidines (C<->T), and Transversions or
-    substitutions between purine and pyrimidine. Similar to Jukes-Cantor.<br>
+    substitutions between purine and pyrimidine. Similar to Jukes-Cantor.<br><br>
 
     BLOSUM62: (BLOcks SUbstitution Matrix) derived from observed substitutions in aligned protein sequences. BLOSUM
-    62 is calculated from sequences with <=62% identity.<br>
+    62 is calculated from sequences with <=62% identity.<br><br>
 
     PAM250: Represents 250 accepted point mutations per 100 amino acids. Derived by extrapolating closely related
     sequences.</p>
